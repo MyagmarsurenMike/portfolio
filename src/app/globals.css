@@ -1,35 +1,75 @@
 @import "tailwindcss";
 
+/* ─── Design tokens ─────────────────────────────────────────── */
 :root {
-  --background: #0a0a0a;
-  --card-surface: #111111;
-  --card-nested: #161616;
-  --text-primary: #ffffff;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
-  --accent: #8b5cf6;
-  --accent-hover: #7c3aed;
+  --background:    #0a0a0a;
+  --card-surface:  #111111;
+  --card-nested:   #161616;
+  --text-primary:  #ffffff;
+  --text-secondary:#a1a1aa;
+  --text-muted:    #71717a;
+  --accent:        #8b5cf6;
+  --accent-hover:  #7c3aed;
+  --spring: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--text-primary);
-  --color-accent: var(--accent);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-accent:     var(--accent);
+  --font-sans:        var(--font-space-grotesk);
+  --font-mono:        var(--font-geist-mono);
 }
 
-html {
-  scroll-behavior: smooth;
-}
+/* ─── Base ──────────────────────────────────────────────────── */
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--text-primary);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  background:  var(--background);
+  color:       var(--text-primary);
+  font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  line-height: 1.65;
+  -webkit-font-smoothing:  antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom utility classes */
+/* ─── Text selection ────────────────────────────────────────── */
+::selection {
+  background: rgba(139, 92, 246, 0.28);
+  color: #ffffff;
+}
+
+/* ─── Custom scrollbar ──────────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; }
+::-webkit-scrollbar-track { background: var(--background); }
+::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.45); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ─── Focus states (keyboard accessibility) ────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ─── Override browser autofill background ─────────────────── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #111111 inset !important;
+  box-shadow:         0 0 0 1000px #111111 inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff !important;
+  transition: background-color 0s 600000s, color 0s 600000s !important;
+}
+
+/* ─── Hide default cursor on mouse devices only ─────────────── */
+@media (pointer: fine) {
+  *, *::before, *::after { cursor: none !important; }
+}
+
+/* ─── Utility classes ──────────────────────────────────────── */
 .gradient-text {
   background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
   -webkit-background-clip: text;
@@ -38,157 +78,99 @@ body {
 }
 
 .card-hover {
-  transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: border-color 0.25s ease-out, box-shadow 0.25s ease-out, transform 0.25s ease-out;
+  will-change: transform;
 }
-
 .card-hover:hover {
-  border-color: rgba(139, 92, 246, 0.5);
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
-  transform: translateY(-2px);
+  border-color: rgba(139, 92, 246, 0.45);
+  box-shadow: 0 0 24px rgba(139, 92, 246, 0.18);
+  transform: translateY(-3px);
 }
 
 .frosted-glass {
-  background: rgba(10, 10, 10, 0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 10, 10, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
-.section-padding {
-  padding: 6rem 1.5rem;
-}
+.section-padding { padding: 6rem 1.5rem; }
 
 @media (max-width: 768px) {
-  .section-padding {
-    padding: 3rem 1rem;
-  }
+  .section-padding { padding: 4rem 1rem; }
 }
 
-/* Breathing animation for ambient bulbs */
-@keyframes breathe {
-  0%, 100% {
-    transform: scale(1) translateY(0);
-    opacity: 0.6;
-  }
-  50% {
-    transform: scale(1.1) translateY(-20px);
-    opacity: 0.4;
-  }
+/* ─── Hero on-load entrance animations ─────────────────────── */
+@keyframes heroSlideLeft {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes heroSlideLeftLong {
+  from { opacity: 0; transform: translateX(-48px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Fade In/Out animation */
-@keyframes fadeInOut {
-  0%, 100% {
-    opacity: 0.2;
-  }
-  50% {
-    opacity: 0.8;
-  }
+.animate-slideInFromLeft     { animation: heroSlideLeft     0.7s var(--spring) both; }
+.animate-slideInFromLeftLong { animation: heroSlideLeftLong 0.8s var(--spring) both; }
+.animate-fadeUp              { animation: heroFadeUp        0.7s var(--spring) both; }
+
+.animate-delay-100 { animation-delay: 0.1s; }
+.animate-delay-200 { animation-delay: 0.2s; }
+.animate-delay-300 { animation-delay: 0.3s; }
+.animate-delay-400 { animation-delay: 0.4s; }
+.animate-delay-500 { animation-delay: 0.5s; }
+
+/* ─── Background: dot grid ─────────────────────────────────── */
+.dot-grid {
+  background-image: radial-gradient(circle, rgba(139,92,246,0.13) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
-/* Float animation - gentle vertical movement */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0) translateX(0);
-    opacity: 0.5;
-  }
-  25% {
-    transform: translateY(-30px) translateX(10px);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translateY(-40px) translateX(-10px);
-    opacity: 0.7;
-  }
-  75% {
-    transform: translateY(-20px) translateX(15px);
-    opacity: 0.6;
-  }
+/* ─── Background: noise / grain texture ────────────────────── */
+.noise-overlay {
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 180px 180px;
 }
 
-/* Pulse animation - scale and fade */
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.4;
-  }
-  50% {
-    transform: scale(1.15);
-    opacity: 0.7;
-  }
+/* ─── Ambient background orbs ───────────────────────────────── */
+@keyframes orb-breathe {
+  0%, 100% { transform: scale(1)    translateY(0px);   opacity: 1; }
+  50%       { transform: scale(1.08) translateY(-18px); opacity: 0.7; }
+}
+@keyframes orb-float {
+  0%, 100% { transform: translateY(0px)   translateX(0px);   opacity: 1; }
+  33%       { transform: translateY(-24px) translateX(12px);  opacity: 0.75; }
+  66%       { transform: translateY(-12px) translateX(-10px); opacity: 0.85; }
+}
+@keyframes orb-pulse {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  50%       { transform: scale(1.12); opacity: 0.7; }
 }
 
-/* Text slide-in animations */
-@keyframes slideInFromLeft {
-  0% {
-    opacity: 0;
-    transform: translateX(-40px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+.orb-breathe  { animation: orb-breathe ease-in-out infinite; }
+.orb-float    { animation: orb-float   ease-in-out infinite; }
+.orb-pulse    { animation: orb-pulse   ease-in-out infinite; }
 
-@keyframes slideInFromLeftLong {
-  0% {
-    opacity: 0;
-    transform: translateX(-60px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+/* Legacy aliases used by Hero badge */
+.animate-pulse-orb { animation: orb-pulse 2s ease-in-out infinite; }
 
-@keyframes slideInFromBottom {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* ─── Typewriter cursor blink ──────────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }
+.animate-blink { animation: blink 1s step-start infinite; }
 
-@supports (animation: breathe 4s ease-in-out infinite) {
-  .animate-breathe {
-    animation: breathe 4s ease-in-out infinite;
-  }
-  .animate-fadeInOut {
-    animation: fadeInOut 5s ease-in-out infinite;
-  }
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-  .animate-pulse {
-    animation: pulse 4.5s ease-in-out infinite;
-  }
-  .animate-slideInFromLeft {
-    animation: slideInFromLeft 1s ease-out forwards;
-  }
-  .animate-slideInFromLeftLong {
-    animation: slideInFromLeftLong 1s ease-out forwards;
-  }
-  .animate-slideInFromBottom {
-    animation: slideInFromBottom 1s ease-out forwards;
-  }
-}
-
-/* Staggered delays for multiple elements */
-.animate-delay-100 {
-  animation-delay: 0.1s;
-}
-.animate-delay-200 {
-  animation-delay: 0.2s;
-}
-.animate-delay-300 {
-  animation-delay: 0.3s;
-}
-.animate-delay-400 {
-  animation-delay: 0.4s;
-}
-.animate-delay-500 {
-  animation-delay: 0.5s;
+/* ─── Accessibility: respect reduced-motion ────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .orb-breathe, .orb-float, .orb-pulse, .animate-pulse-orb { animation: none; opacity: 0.6; }
+  .animate-slideInFromLeft, .animate-slideInFromLeftLong, .animate-fadeUp { animation: none; opacity: 1; transform: none; }
+  .card-hover:hover { transform: none; }
+  .animate-blink    { animation: none; opacity: 0; }
 }

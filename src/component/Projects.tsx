@@ -1,9 +1,15 @@
+"use client";
+
+import { useLanguage } from "@/context/LanguageContext";
+import { AnimateOnScroll } from "@/component/AnimateOnScroll";
+import { TypewriterText } from "@/component/TypewriterText";
+
 interface Project {
   title: string;
   description: string;
   tags: string[];
   featured?: boolean;
-  image?: string; // Path to project screenshot
+  image?: string;
 }
 
 const tagColor = (tag: string): string => {
@@ -41,59 +47,58 @@ const ProjectImage = ({ src, title }: { src?: string; title: string }) => {
         <span className="text-xs text-text-muted ml-3">{title}</span>
       </div>
       <div className="flex-1 bg-gradient-to-br from-accent/5 to-purple-600/5 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-4xl mb-2">📱</div>
-          <p className="text-text-muted text-sm">Add screenshot to public/</p>
-        </div>
+        <p className="text-text-muted text-sm">Add screenshot to public/</p>
       </div>
     </div>
   );
 };
 
-export default function Projects() {
-  const featuredProjects: Project[] = [
-    {
-      title: "School Management Production System",
-      description:
-        "A comprehensive school management system with file upload capabilities, PDF-to-image conversion, and CI/CD pipeline integration. Deployed on AWS EC2 with Docker containerization.",
-      tags: ["Next.js", "Docker", "AWS EC2", "GitHub Actions", "CloudConvert"],
-      featured: true,
-      image: "/projects/school-management.png", // Add your screenshot here
-    },
-    {
-      title: "Gantt Chart Project Management",
-      description:
-        "Interactive project management tool with Gantt chart visualization. Built with React and TypeScript, featuring task grouping, real-time updates, and backend integration.",
-      tags: ["React", "TypeScript", "Gantt", "REST API"],
-      featured: true,
-      image: "/projects/gantt-chart.png", // Add your screenshot here
-    },
-  ];
+const featuredTags = [
+  ["Next.js", "Docker", "AWS EC2", "GitHub Actions", "CloudConvert"],
+  ["React", "TypeScript", "Gantt", "REST API"],
+];
+const gridTags = [["Next.js", "TypeScript", "Tailwind CSS"]];
+const featuredImages = [
+  "/projects/school-management.png",
+  "/projects/gantt-chart.png",
+];
 
-  const gridProjects: Project[] = [
-    {
-      title: "Documentation & Planning Tool",
-      description: "Collaborative documentation and planning application with Gantt functionality.",
-      tags: ["Next.js", "TypeScript", "Tailwind CSS"],
-    },
-  ];
+export default function Projects() {
+  const { t } = useLanguage();
+  const p = t.projects;
+
+  const featuredProjects: Project[] = p.projects.slice(0, 2).map((proj, i) => ({
+    ...proj,
+    tags: featuredTags[i],
+    featured: true,
+    image: featuredImages[i],
+  }));
+
+  const gridProjects: Project[] = p.projects.slice(2).map((proj, i) => ({
+    ...proj,
+    tags: gridTags[i] || [],
+  }));
 
   return (
     <section id="projects" className="section-padding bg-[#0a0a0a]">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-4xl md:text-5xl font-bold mb-16 animate-slideInFromLeftLong">Featured Projects</h2>
+        <TypewriterText
+          text={p.heading}
+          speed={70}
+          tag="h2"
+          className="text-4xl md:text-5xl font-bold mb-16 block"
+          triggerOnView
+        />
 
         {/* Featured Projects */}
         <div className="space-y-20 mb-20">
           {featuredProjects.map((project, idx) => (
+            <AnimateOnScroll key={project.title} animation="fadeUp" delay={idx * 80}>
             <div
-              key={project.title}
               className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center"
             >
-              {/* Alternate layout for even projects */}
               {idx % 2 === 0 ? (
                 <>
-                  {/* Content Left */}
                   <div className="space-y-6">
                     <h3 className="text-3xl font-bold">{project.title}</h3>
                     <p className="text-text-secondary leading-relaxed">
@@ -103,27 +108,22 @@ export default function Projects() {
                       {project.tags.map((tag) => (
                         <span
                           key={tag}
-                          className={`px-3 py-1 rounded-full text-sm font-medium ${tagColor(
-                            tag
-                          )}`}
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${tagColor(tag)}`}
                         >
                           {tag}
                         </span>
                       ))}
                     </div>
                   </div>
-                  {/* Screenshot Right */}
                   <div className="md:order-last">
                     <ProjectImage src={project.image} title={project.title} />
                   </div>
                 </>
               ) : (
                 <>
-                  {/* Screenshot Left */}
                   <div>
                     <ProjectImage src={project.image} title={project.title} />
                   </div>
-                  {/* Content Right */}
                   <div className="space-y-6">
                     <h3 className="text-3xl font-bold">{project.title}</h3>
                     <p className="text-text-secondary leading-relaxed">
@@ -133,9 +133,7 @@ export default function Projects() {
                       {project.tags.map((tag) => (
                         <span
                           key={tag}
-                          className={`px-3 py-1 rounded-full text-sm font-medium ${tagColor(
-                            tag
-                          )}`}
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${tagColor(tag)}`}
                         >
                           {tag}
                         </span>
@@ -145,18 +143,21 @@ export default function Projects() {
                 </>
               )}
             </div>
+            </AnimateOnScroll>
           ))}
         </div>
 
         {/* Grid Projects */}
         {gridProjects.length > 0 && (
           <div>
-            <h3 className="text-2xl font-semibold mb-8">Other Projects</h3>
+            <AnimateOnScroll animation="fadeUp">
+              <h3 className="text-2xl font-semibold mb-8">{p.otherHeading}</h3>
+            </AnimateOnScroll>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {gridProjects.map((project) => (
+              {gridProjects.map((project, i) => (
+                <AnimateOnScroll key={project.title} animation="fadeUp" delay={i * 100}>
                 <div
-                  key={project.title}
-                  className="card-hover p-6 rounded-xl bg-card-surface space-y-4"
+                  className="card-hover p-6 rounded-xl bg-card-surface space-y-4 cursor-pointer"
                 >
                   <h4 className="text-xl font-bold">{project.title}</h4>
                   <p className="text-text-secondary text-sm leading-relaxed">
@@ -166,15 +167,14 @@ export default function Projects() {
                     {project.tags.map((tag) => (
                       <span
                         key={tag}
-                        className={`px-2 py-1 rounded text-xs font-medium ${tagColor(
-                          tag
-                        )}`}
+                        className={`px-2 py-1 rounded text-xs font-medium ${tagColor(tag)}`}
                       >
                         {tag}
                       </span>
                     ))}
                   </div>
                 </div>
+                </AnimateOnScroll>
               ))}
             </div>
           </div>

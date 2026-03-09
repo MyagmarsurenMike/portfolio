@@ -1,82 +1,73 @@
 "use client";
 
-import { useEffect, useState } from "react";
+/* ─────────────────────────────────────────────────────────────
+   Background system — 4 layers:
+   1. Dot grid  (CSS, zero JS, ultra-lightweight)
+   2. Noise texture overlay  (SVG filter, adds organic depth)
+   3. Gradient orbs  (6 blurred blobs, staggered animations)
+   4. Top aurora glow  (wide gradient at page top)
+───────────────────────────────────────────────────────────── */
 
-interface Bulb {
-  id: number;
-  x: string;
-  y: string;
-  size: string;
-  color: string;
-  duration: number;
-  delay: number;
-  animation: "breathe" | "fadeInOut" | "float" | "pulse";
-  scrollSpeed: number;
-}
+const orbs = [
+  // Top-left — large anchor, deep violet
+  { id: 1, w: 600, h: 600, x: "-12%", y: "-8%",  color: "rgba(109,40,217,0.22)",  anim: "orb-breathe", dur: "6s",  delay: "0s"   },
+  // Top-right — medium, blue-indigo
+  { id: 2, w: 440, h: 440, x: "72%",  y: "-10%", color: "rgba(79,70,229,0.18)",   anim: "orb-float",   dur: "8s",  delay: "1s"   },
+  // Center — subtle large orb for mid-page warmth
+  { id: 3, w: 500, h: 500, x: "30%",  y: "38%",  color: "rgba(124,58,237,0.13)",  anim: "orb-pulse",   dur: "7s",  delay: "2s"   },
+  // Left-center — indigo, ties hero to middle sections
+  { id: 4, w: 380, h: 380, x: "-8%",  y: "55%",  color: "rgba(99,102,241,0.17)",  anim: "orb-breathe", dur: "6.5s","delay": "0.8s" },
+  // Bottom-right — violet anchor
+  { id: 5, w: 520, h: 520, x: "68%",  y: "72%",  color: "rgba(139,92,246,0.18)",  anim: "orb-float",   dur: "7.5s","delay": "1.5s" },
+  // Center-right accent — small, pops of cyan-violet
+  { id: 6, w: 280, h: 280, x: "82%",  y: "40%",  color: "rgba(167,139,250,0.14)", anim: "orb-pulse",   dur: "5.5s","delay": "2.5s" },
+];
 
 export default function BreathingBulbs() {
-  const [scrollY, setScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const bulbs: Bulb[] = [
-    // Top area bulbs
-    { id: 1, x: "-10%", y: "-20%", size: "w-96 h-96", color: "bg-purple-500/25", duration: 4, delay: 0, animation: "breathe", scrollSpeed: 0.3 },
-    { id: 2, x: "85%", y: "-15%", size: "w-80 h-80", color: "bg-white/10", duration: 5, delay: 0.5, animation: "fadeInOut", scrollSpeed: 0.4 },
-    { id: 3, x: "50%", y: "-25%", size: "w-72 h-72", color: "bg-violet-500/15", duration: 6, delay: 1, animation: "float", scrollSpeed: 0.25 },
-
-    // Middle-top area bulbs
-    { id: 4, x: "15%", y: "10%", size: "w-96 h-96", color: "bg-white/15", duration: 4.5, delay: 0.3, animation: "pulse", scrollSpeed: 0.35 },
-    { id: 5, x: "70%", y: "15%", size: "w-88 h-88", color: "bg-purple-500/20", duration: 5.5, delay: 1.2, animation: "breathe", scrollSpeed: 0.32 },
-    { id: 6, x: "-5%", y: "20%", size: "w-80 h-80", color: "bg-violet-500/10", duration: 4, delay: 0.7, animation: "fadeInOut", scrollSpeed: 0.38 },
-
-    // Middle area bulbs
-    { id: 7, x: "45%", y: "35%", size: "w-96 h-96", color: "bg-white/12", duration: 6, delay: 0, animation: "float", scrollSpeed: 0.4 },
-    { id: 8, x: "80%", y: "40%", size: "w-72 h-72", color: "bg-purple-500/18", duration: 5, delay: 1.5, animation: "pulse", scrollSpeed: 0.33 },
-    { id: 9, x: "10%", y: "45%", size: "w-80 h-80", color: "bg-violet-500/12", duration: 4.5, delay: 0.8, animation: "breathe", scrollSpeed: 0.36 },
-
-    // Middle-bottom area bulbs
-    { id: 10, x: "75%", y: "60%", size: "w-96 h-96", color: "bg-white/8", duration: 5.5, delay: 0.4, animation: "fadeInOut", scrollSpeed: 0.42 },
-    { id: 11, x: "20%", y: "65%", size: "w-88 h-88", color: "bg-purple-500/22", duration: 4, delay: 1.1, animation: "float", scrollSpeed: 0.31 },
-    { id: 12, x: "55%", y: "70%", size: "w-80 h-80", color: "bg-white/10", duration: 6, delay: 0.6, animation: "pulse", scrollSpeed: 0.37 },
-
-    // Bottom area bulbs
-    { id: 13, x: "-15%", y: "85%", size: "w-96 h-96", color: "bg-violet-500/18", duration: 5, delay: 0.9, animation: "breathe", scrollSpeed: 0.45 },
-    { id: 14, x: "85%", y: "90%", size: "w-80 h-80", color: "bg-white/12", duration: 4.5, delay: 0.2, animation: "fadeInOut", scrollSpeed: 0.43 },
-    { id: 15, x: "35%", y: "95%", size: "w-88 h-88", color: "bg-purple-500/20", duration: 5.5, delay: 1.3, animation: "float", scrollSpeed: 0.4 },
-
-    // Side bulbs
-    { id: 16, x: "-20%", y: "40%", size: "w-80 h-80", color: "bg-white/9", duration: 6, delay: 0.4, animation: "pulse", scrollSpeed: 0.34 },
-    { id: 17, x: "95%", y: "50%", size: "w-72 h-72", color: "bg-purple-500/16", duration: 4.5, delay: 1, animation: "breathe", scrollSpeed: 0.39 },
-
-    // Extra scattered bulbs
-    { id: 18, x: "30%", y: "15%", size: "w-64 h-64", color: "bg-white/11", duration: 5, delay: 0.5, animation: "fadeInOut", scrollSpeed: 0.35 },
-    { id: 19, x: "60%", y: "55%", size: "w-72 h-72", color: "bg-violet-500/14", duration: 5.5, delay: 0.8, animation: "float", scrollSpeed: 0.41 },
-    { id: 20, x: "15%", y: "75%", size: "w-80 h-80", color: "bg-white/13", duration: 4, delay: 1.2, animation: "pulse", scrollSpeed: 0.38 },
-  ];
-
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      {bulbs.map((bulb) => (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+
+      {/* ── Layer 1: Dot grid ──────────────────────────── */}
+      <div className="absolute inset-0 dot-grid" />
+
+      {/* ── Layer 2: Noise texture ────────────────────── */}
+      <div className="absolute inset-0 noise-overlay" />
+
+      {/* ── Layer 3: Top aurora glow ──────────────────── */}
+      <div
+        className="absolute left-0 right-0 top-0"
+        style={{
+          height: "420px",
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(109,40,217,0.28) 0%, rgba(79,70,229,0.12) 40%, transparent 70%)",
+        }}
+      />
+
+      {/* ── Layer 4: Gradient orbs ────────────────────── */}
+      {orbs.map((o) => (
         <div
-          key={bulb.id}
-          className={`absolute ${bulb.size} ${bulb.color} rounded-full blur-3xl ${bulb.animation}`}
+          key={o.id}
+          className={`absolute rounded-full blur-3xl ${o.anim}`}
           style={{
-            left: bulb.x,
-            top: bulb.y,
-            animation: `${bulb.animation} ${bulb.duration}s ease-in-out ${bulb.delay}s infinite`,
-            transform: `translateY(${scrollY * bulb.scrollSpeed * 0.5}px)`,
-            transition: "transform 0.1s ease-out",
+            width:             o.w,
+            height:            o.h,
+            left:              o.x,
+            top:               o.y,
+            background:        o.color,
+            animationDuration: o.dur,
+            animationDelay:    o.delay,
           }}
         />
       ))}
+
+      {/* ── Layer 5: Edge vignette for depth ──────────── */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(0,0,0,0.55) 100%)",
+        }}
+      />
     </div>
   );
 }
